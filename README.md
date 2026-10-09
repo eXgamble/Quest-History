@@ -34,7 +34,7 @@ and keep showing the latest description. Restarting a repeatable quest starts it
 
 The journal's objective entries carry only their text, so entries are matched to objectives by text;
 several objectives with the same text are told apart by the order they were shown (the journal lists
-the newest first). See [docs/SPIKE.md](docs/SPIKE.md) for the investigation behind this.
+the newest first).
 
 ## Building
 
