@@ -1,0 +1,124 @@
+[20:08:43:706] QuestHistorySpike on runtime 1.6.1170.0
+[20:08:58:215] sinks registered
+[20:09:03:113] --- pre load ---
+[20:09:07:037] --- post load / new game ---
+[20:09:14:634] ObjectiveState MS14 obj 20 'Talk to the Jarl' 0->1 loading=false thread=31572 curStage=20 inst=1 journalStage=20 journalItem=0
+[20:09:14:718] ObjectiveState MS14 obj 20 'Talk to the Jarl' 1->3 loading=false thread=32744 curStage=30 inst=1 journalStage=30 journalItem=0
+[20:09:14:735] ObjectiveState MS14 obj 30 'Investigate the burned house' 0->1 loading=false thread=33924 curStage=30 inst=1 journalStage=30 journalItem=0
+[20:09:14:817] ObjectiveState MS14 obj 60 'Ask Thonnir about Laelette' 0->2 loading=false thread=31572 curStage=70 inst=1 journalStage=70 journalItem=0
+[20:09:14:835] ObjectiveState MS14 obj 70 'Investigate Alva's house' 0->1 loading=false thread=10556 curStage=70 inst=1 journalStage=70 journalItem=0
+[20:09:19:251] ObjectiveState MQ101 obj 100 'Escape Helgen' 1->5 loading=false thread=32744 curStage=800 inst=1 journalStage=180 journalItem=0
+[20:09:21:681] journal: listener attached=true questLog size=10
+[20:09:25:685] selftest: selected MS14 at title index 0
+[20:09:29:685] selftest: objective selectedIndex = 0 (of 3)
+[20:09:29:685] highlight index=0 input=-1 quest=MS14 [00025F3E] instance=1
+[20:09:29:685]   quest MS14 [00025F3E] curStage=70 curInstance=1 instances=1
+[20:09:29:685]     instance id=1 journalStage=70 journalItem=0 strings=1 globals=0
+[20:09:29:685]     executedStages (list order): 1(f3) 0(f0) 
+[20:09:29:685]     objectives index:state: 20:3 30:1 35:0 40:0 50:0 60:2 70:1 95:0 100:0 120:0 
+[20:09:29:685]     questLog items stage/item (list order): 70/0 30/0 20/0 
+[20:09:29:695]     selectedEntry.description type=4
+[20:09:29:695]     selectedEntry.qhLatest type=4
+[20:09:29:695]     selectedEntry.completed type=3
+[20:09:29:695]     selectedEntry.active type=2
+[20:09:29:695]     selectedEntry.instance type=3
+[20:09:29:696]     selectedEntry.timeIndex type=3
+[20:09:29:696]     selectedEntry.clipIndex type=3
+[20:09:29:696]     selectedEntry.text type=4
+[20:09:29:696]     selectedEntry.objectives type=7
+[20:09:29:696]     selectedEntry.type type=3
+[20:09:29:696]     selectedEntry.formID type=3
+[20:09:29:696]     objectiveEntry.failed type=3
+[20:09:29:696]     objectiveEntry.text type=4
+[20:09:29:696]     objectiveEntry.completed type=3
+[20:09:29:696]     objectiveEntry.clipIndex type=3
+[20:09:29:696]     objectiveEntry.questTargetID type=3
+[20:09:29:696]   entry text 'Investigate Alva's house' -> objective 70
+[20:09:29:696]   recorded: stage 70 item 0
+[20:09:29:697]   raw GetLogEntry: Morthal's Jarl has asked me to investigate the death of Hroggar's wife and child. Hroggar took Alva as a lover immediately afterward. I suspect she may be a vampire, but I need proof for the Jarl.
+[20:09:29:697]   current text : Morthal's Jarl has asked me to investigate the death of Hroggar's wife and child. Hroggar took Alva as a lover immediately afterward. I suspect she may be a vampire, but I need proof for the Jarl.
+[20:09:29:697]   swapped text : Morthal's Jarl has asked me to investigate the death of Hroggar's wife and child. Hroggar took Alva as a lover immediately afterward. I suspect she may be a vampire, but I need proof for the Jarl.
+[20:09:31:803] ObjectiveState UE_Cave obj 10 'Find something to break through the rocks' 0->1 loading=false thread=31572 curStage=10 inst=1 journalStage=10 journalItem=0
+[20:09:33:685] selftest: objective selectedIndex = 1 (of 3)
+[20:09:33:685] highlight index=1 input=-1 quest=MS14 [00025F3E] instance=1
+[20:09:33:685]     objectiveEntry.failed type=3
+[20:09:33:685]     objectiveEntry.text type=4
+[20:09:33:685]     objectiveEntry.completed type=3
+[20:09:33:685]     objectiveEntry.clipIndex type=3
+[20:09:33:685]     objectiveEntry.questTargetID type=3
+[20:09:33:685]   entry text 'Investigate the burned house' -> objective 30
+[20:09:33:685]   recorded: stage 30 item 0
+[20:09:33:685]   raw GetLogEntry: Morthal's Jarl has asked me to investigate the house fire that killed Hroggar's wife and child. Hroggar took Alva as a lover immediately after the fire, and many in the town think he did it.
+[20:09:33:685]   current text : Morthal's Jarl has asked me to investigate the death of Hroggar's wife and child. Hroggar took Alva as a lover immediately afterward. I suspect she may be a vampire, but I need proof for the Jarl.
+[20:09:33:685]   swapped text : Morthal's Jarl has asked me to investigate the house fire that killed Hroggar's wife and child. Hroggar took Alva as a lover immediately after the fire, and many in the town think he did it.
+[20:09:37:036] ObjectiveState ccBGSSSE010_PetPurchaseQuest obj 0 'Read Notice of Sale' 0->2 loading=false thread=31572 curStage=10 inst=1 journalStage=10 journalItem=0
+[20:09:37:685] selftest: objective selectedIndex = 2 (of 3)
+[20:09:37:685] highlight index=2 input=-1 quest=MS14 [00025F3E] instance=1
+[20:09:37:685]     objectiveEntry.completed type=3
+[20:09:37:685]     objectiveEntry.text type=4
+[20:09:37:685]     objectiveEntry.clipIndex type=3
+[20:09:37:685]     objectiveEntry.failed type=3
+[20:09:37:685]   entry text 'Talk to the Jarl' -> objective 20
+[20:09:37:685]   recorded: stage 20 item 0
+[20:09:37:685]   raw GetLogEntry: A mysterious fire killed Hroggar's wife and child. Hroggar took Alva as a lover immediately after the fire, and many in the town think he did it. The Jarl might pay me to investigate it.
+[20:09:37:685]   current text : Morthal's Jarl has asked me to investigate the death of Hroggar's wife and child. Hroggar took Alva as a lover immediately afterward. I suspect she may be a vampire, but I need proof for the Jarl.
+[20:09:37:685]   swapped text : A mysterious fire killed Hroggar's wife and child. Hroggar took Alva as a lover immediately after the fire, and many in the town think he did it. The Jarl might pay me to investigate it.
+[20:09:41:686] selftest: objective selectedIndex = -1 (of 3)
+[20:09:41:686] highlight index=-1 input=-1 quest=MS14 [00025F3E] instance=1
+[20:09:45:686] selftest: objective selectedIndex = -1 (of 3)
+[20:09:49:686] selftest: objective selectedIndex = -1 (of 3)
+[20:09:53:686] selftest: objective selectedIndex = -1 (of 3)
+[20:10:24:113] journal: listener attached=true questLog size=26
+[20:10:28:127] selftest: selected MQ101 at title index 3
+[20:10:32:126] selftest: objective selectedIndex = 0 (of 4)
+[20:10:32:126] highlight index=0 input=-1 quest=MQ101 [0003372B] instance=1
+[20:10:32:126]   quest MQ101 [0003372B] curStage=1000 curInstance=1 instances=1
+[20:10:32:126]     instance id=1 journalStage=950 journalItem=0 strings=0 globals=0
+[20:10:32:126]     executedStages (list order): 0(f3) 51392(f30) 
+[20:10:32:126]     objectives index:state: 30:3 50:3 60:0 65:3 70:0 75:0 100:5 
+[20:10:32:126]     questLog items stage/item (list order): 950/0 180/0 150/0 
+[20:10:32:126]     selectedEntry.description type=4
+[20:10:32:126]     selectedEntry.qhLatest type=4
+[20:10:32:126]     selectedEntry.completed type=3
+[20:10:32:126]     selectedEntry.active type=2
+[20:10:32:126]     selectedEntry.instance type=3
+[20:10:32:126]     selectedEntry.timeIndex type=3
+[20:10:32:126]     selectedEntry.clipIndex type=3
+[20:10:32:126]     selectedEntry.text type=4
+[20:10:32:126]     selectedEntry.objectives type=7
+[20:10:32:126]     selectedEntry.type type=3
+[20:10:32:126]     selectedEntry.formID type=3
+[20:10:32:126]     objectiveEntry.completed type=3
+[20:10:32:126]     objectiveEntry.text type=4
+[20:10:32:126]     objectiveEntry.clipIndex type=3
+[20:10:32:126]     objectiveEntry.failed type=3
+[20:10:32:126]   entry text 'Loot Gunjar's body' -> objective 65
+[20:10:32:126]   guessed: stage 65535 item -2
+[20:10:36:126] selftest: objective selectedIndex = 1 (of 4)
+[20:10:36:126] highlight index=1 input=-1 quest=MQ101 [0003372B] instance=1
+[20:10:36:126]     objectiveEntry.completed type=3
+[20:10:36:126]     objectiveEntry.text type=4
+[20:10:36:126]     objectiveEntry.clipIndex type=3
+[20:10:36:126]     objectiveEntry.failed type=3
+[20:10:36:126]   entry text 'Escape Helgen' -> objective 100
+[20:10:36:126]   guessed: stage 65535 item -2
+[20:10:40:127] selftest: objective selectedIndex = 2 (of 4)
+[20:10:40:127] highlight index=2 input=-1 quest=MQ101 [0003372B] instance=1
+[20:10:40:127]     objectiveEntry.completed type=3
+[20:10:40:127]     objectiveEntry.text type=4
+[20:10:40:127]     objectiveEntry.clipIndex type=3
+[20:10:40:127]     objectiveEntry.failed type=3
+[20:10:40:127]   entry text 'Enter the Keep with Hadvar or Ralof' -> objective 50
+[20:10:40:127]   guessed: stage 65535 item -2
+[20:10:44:127] selftest: objective selectedIndex = 3 (of 4)
+[20:10:44:127] highlight index=3 input=-1 quest=MQ101 [0003372B] instance=1
+[20:10:44:127]     objectiveEntry.completed type=3
+[20:10:44:127]     objectiveEntry.text type=4
+[20:10:44:127]     objectiveEntry.clipIndex type=3
+[20:10:44:127]     objectiveEntry.failed type=3
+[20:10:44:127]   entry text 'Make your way to the Keep' -> objective 30
+[20:10:44:127]   guessed: stage 65535 item -2
+[20:10:48:127] selftest: objective selectedIndex = -1 (of 4)
+[20:10:48:127] highlight index=-1 input=-1 quest=MQ101 [0003372B] instance=1
+[20:10:52:127] selftest: objective selectedIndex = -1 (of 4)
+[20:10:56:127] selftest: objective selectedIndex = -1 (of 4)
