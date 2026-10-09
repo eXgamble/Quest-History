@@ -1,2 +1,12 @@
-spike/build/
-spike/build.log
+# SKSE plugin build output (CMake / vcpkg)
+skse/build/
+skse/vcpkg_installed/
+skse/build.log
+
+# MO2's own metadata for the mod folder (MO2 reads the mod through a junction to mod/)
+mod/meta.ini
+
+# Editor / OS clutter
+.vs/
+.vscode/
+Thumbs.db

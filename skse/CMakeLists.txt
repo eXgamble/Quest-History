@@ -1,32 +1,35 @@
 cmake_minimum_required(VERSION 3.21)
-project(QuestHistorySpike VERSION 0.0.1 LANGUAGES CXX)
+project(QuestHistory VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Throwaway spike: borrows Death Timer's CommonLibSSE-NG checkout (ng v10.0.0, AE only).
+# CommonLibSSE-NG (alandtse ng, git submodule, pinned to v10.0.0). AE only: 1.6.x and 1.7.x.
 set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(ENABLE_SKYRIM_SE OFF CACHE BOOL "" FORCE)
 set(ENABLE_SKYRIM_AE ON CACHE BOOL "" FORCE)
 set(ENABLE_SKYRIM_VR OFF CACHE BOOL "" FORCE)
-set(COMMONLIB_DIR "C:/Modding/houseCARL/DeathTimer/skse/lib/commonlibsse-ng")
-add_subdirectory(${COMMONLIB_DIR} commonlib)
+add_subdirectory(lib/commonlibsse-ng commonlib)
+
+# a plain source add_subdirectory does not define the plugin helper
 if(NOT COMMAND add_commonlibsse_plugin)
-	include(${COMMONLIB_DIR}/cmake/CommonLibSSE.cmake)
+	include(lib/commonlibsse-ng/cmake/CommonLibSSE.cmake)
 endif()
 
 add_commonlibsse_plugin(${PROJECT_NAME}
-	NAME "QuestHistorySpike"
+	NAME "QuestHistory"
 	AUTHOR "eXgamble"
-	SOURCES src/plugin.cpp)
+	SOURCES src/plugin.cpp src/Records.cpp src/Journal.cpp)
 
+target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
 target_compile_options(${PROJECT_NAME} PRIVATE /Zc:preprocessor /permissive- /EHsc /utf-8 /W4)
 target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX UNICODE _UNICODE)
-target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_precompile_headers(${PROJECT_NAME} PRIVATE src/PCH.h)
 
-set(DEPLOY_DIR "C:/Modding/MO2/mods/QuestHistorySpike/SKSE/Plugins")
+# Copy the DLL into the mod after every build (the MO2 mod folder is a junction to ../mod).
+# The PDB (debug symbols) is not shipped: it stays in build/release for reading crash logs.
+set(DEPLOY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../mod/SKSE/Plugins")
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E make_directory "${DEPLOY_DIR}"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:${PROJECT_NAME}>" "${DEPLOY_DIR}"

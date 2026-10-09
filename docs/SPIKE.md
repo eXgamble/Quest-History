@@ -1,5 +1,7 @@
 # Quest History: spike (2026-10-08)
 
+> **Done.** The real mod is in `skse/` (2026-10-09). It adds the co-save (point 3) and tells objectives with the same text apart by the order they were shown (point 2). The spike plugin itself was removed from the repo (see git history before that commit).
+
 **Goal:** in the Quest Journal, highlighting one of a quest's objectives shows the quest description (journal entry) that was current when that objective was given. Today the journal only ever shows the latest entry; older ones are overwritten.
 
 **Verdict: feasible as a pure SKSE plugin, no swf edit.** A throwaway prototype (`spike/`) did the full loop in the real game with Oathvein UI's journal: record, highlight, old entry shown, latest entry restored. The journal's names and events are identical in vanilla, SkyUI and Oathvein, so one DLL should work with all three.
