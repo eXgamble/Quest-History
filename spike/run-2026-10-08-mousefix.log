@@ -1,0 +1,36 @@
+[20:34:19:994] QuestHistorySpike on runtime 1.6.1170.0
+[20:34:35:981] sinks registered
+[20:34:41:211] --- pre load ---
+[20:34:45:185] --- post load / new game ---
+[20:34:57:404] ObjectiveState MQ101 obj 100 'Escape Helgen' 1->5 loading=false thread=27264 curStage=800 inst=1 journalStage=180 journalItem=0
+[20:35:09:938] ObjectiveState UE_Cave obj 10 'Find something to break through the rocks' 0->1 loading=false thread=15844 curStage=10 inst=1 journalStage=10 journalItem=0
+[20:35:15:188] ObjectiveState ccBGSSSE010_PetPurchaseQuest obj 0 'Read Notice of Sale' 0->2 loading=false thread=15844 curStage=10 inst=1 journalStage=10 journalItem=0
+[20:35:36:138] ObjectiveState UE_Cave obj 10 'Find something to break through the rocks' 1->3 loading=false thread=18292 curStage=20 inst=1 journalStage=20 journalItem=0
+[20:35:36:238] ObjectiveState UE_Cave obj 20 'Bring the pickaxe to <Alias=Companion>' 0->1 loading=false thread=18292 curStage=20 inst=1 journalStage=20 journalItem=0
+[20:35:42:236] layout UE_Cave: 1 old entries, list y reserved 233.15
+[20:35:42:236] journal: listener attached=true, SetDescriptionText wrapped
+[20:35:46:235] layout UE_Cave: 1 old entries, list y reserved 233.15
+[20:35:46:236] selftest: selected UE_Cave at title index 0
+[20:35:50:235] selftest: objective selectedIndex = 0 (of 2)
+[20:35:50:235] highlight UE_Cave index=0 input=-1 old=true listY 233.15 -> 233.15
+[20:35:54:235] selftest: objective selectedIndex = 1 (of 2)
+[20:35:54:235] highlight UE_Cave index=1 input=-1 old=true listY 233.15 -> 233.15
+[20:35:58:235] selftest: objective selectedIndex = -1 (of 2)
+[20:35:58:236] highlight UE_Cave index=-1 input=-1 old=false listY 233.15 -> 233.15
+[20:36:02:235] selftest: objective selectedIndex = -1 (of 2)
+[20:36:06:249] selftest: objective selectedIndex = -1 (of 2)
+[20:36:10:249] selftest: objective selectedIndex = -1 (of 2)
+[20:36:14:249] selftest: objective selectedIndex = -1 (of 2)
+[20:36:18:517] layout UE_Cave: 1 old entries, list y reserved 233.15
+[20:36:18:517] journal: listener attached=true, SetDescriptionText wrapped
+[20:36:22:530] layout UE_Cave: 1 old entries, list y reserved 233.15
+[20:36:22:530] selftest: selected UE_Cave at title index 0
+[20:36:26:529] selftest: objective selectedIndex = 0 (of 2)
+[20:36:26:530] highlight UE_Cave index=0 input=-1 old=true listY 233.15 -> 233.15
+[20:36:30:530] selftest: objective selectedIndex = 1 (of 2)
+[20:36:30:530] highlight UE_Cave index=1 input=-1 old=true listY 233.15 -> 233.15
+[20:36:34:526] selftest: objective selectedIndex = -1 (of 2)
+[20:36:34:526] highlight UE_Cave index=-1 input=-1 old=false listY 233.15 -> 233.15
+[20:36:38:526] selftest: objective selectedIndex = -1 (of 2)
+[20:36:42:526] selftest: objective selectedIndex = -1 (of 2)
+[20:36:46:526] selftest: objective selectedIndex = -1 (of 2)

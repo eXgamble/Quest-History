@@ -50,39 +50,6 @@ namespace
 		return nullptr;
 	}
 
-	void DumpQuest(RE::TESQuest* a_quest)
-	{
-		logger::info("  quest {} [{:08X}] curStage={} curInstance={} instances={}", Edid(a_quest), a_quest->GetFormID(),
-			a_quest->currentStage, a_quest->currentInstanceID, a_quest->instanceData.size());
-		for (auto* inst : a_quest->instanceData) {
-			if (inst) {
-				logger::info("    instance id={} journalStage={} journalItem={} strings={} globals={}", inst->id, inst->journalStage,
-					inst->journalStageItem, inst->stringData.size(), inst->valueData.size());
-			}
-		}
-		if (a_quest->executedStages) {
-			std::string s;
-			for (auto& st : *a_quest->executedStages) {
-				s += fmt::format("{}(f{:X}) ", st.data.index, st.data.flags.underlying());
-			}
-			logger::info("    executedStages (list order): {}", s);
-		}
-		std::string obj;
-		for (auto* o : a_quest->objectives) {
-			if (o) {
-				obj += fmt::format("{}:{} ", o->index, static_cast<int>(o->state.get()));
-			}
-		}
-		logger::info("    objectives index:state: {}", obj);
-		std::string log;
-		for (auto* item : RE::PlayerCharacter::GetSingleton()->GetQuestLog()) {
-			if (item && item->owner == a_quest) {
-				log += fmt::format("{}/{} ", item->owningStage ? item->owningStage->data.index : 0xFFFF, item->index);
-			}
-		}
-		logger::info("    questLog items stage/item (list order): {}", log);
-	}
-
 	// ---------- 1. objective events ----------
 	class ObjectiveSink : public RE::BSTEventSink<RE::ObjectiveState::Event>
 	{
@@ -146,105 +113,138 @@ namespace
 	{
 		auto* inst = FindInstance(a_quest, a_instance);
 		if (!inst) {
-			logger::info("  no instance {} on quest", a_instance);
 			return {};
 		}
-		const auto     oldStage = inst->journalStage;
-		const auto     oldItem = inst->journalStageItem;
-		RE::BSString   current, swapped;
-		a_quest->GetJournalTextForInstance(current, a_instance);
+		const auto   oldStage = inst->journalStage;
+		const auto   oldItem = inst->journalStageItem;
+		RE::BSString text;
 		inst->journalStage = a_rec.stage;
 		inst->journalStageItem = a_rec.item;
-		a_quest->GetJournalTextForInstance(swapped, a_instance);
+		a_quest->GetJournalTextForInstance(text, a_instance);
 		inst->journalStage = oldStage;
 		inst->journalStageItem = oldItem;
-		for (auto* item : RE::PlayerCharacter::GetSingleton()->GetQuestLog()) {
-			if (item && item->owner == a_quest && item->owningStage && item->owningStage->data.index == a_rec.stage && item->index == static_cast<std::uint8_t>(a_rec.item)) {
-				logger::info("  raw GetLogEntry: {}", item->GetLogEntry(a_quest));
+		return text.c_str();
+	}
+
+	// What the page shows right now: the selected quest and its objective entries.
+	struct PageState
+	{
+		RE::GFxValue  page, titleList, sel, objList, entries, descText;
+		RE::TESQuest* quest{ nullptr };
+		std::uint32_t instance{ 0 };
+
+		explicit PageState(const RE::GFxValue& a_page) :
+			page(a_page)
+		{
+			page.GetMember("TitleList", &titleList);
+			titleList.GetMember("selectedEntry", &sel);
+			page.GetMember("ObjectiveList", &objList);
+			objList.GetMember("entryList", &entries);
+			page.GetMember("DescriptionText", &descText);
+			if (sel.IsObject()) {
+				RE::GFxValue formV, instV;
+				sel.GetMember("formID", &formV);
+				sel.GetMember("instance", &instV);
+				const auto formID = formV.IsNumber() ? static_cast<RE::FormID>(formV.GetNumber()) : 0;
+				instance = instV.IsNumber() ? static_cast<std::uint32_t>(instV.GetNumber()) : 0;
+				quest = formID ? RE::TESForm::LookupByID<RE::TESQuest>(formID) : nullptr;  // null on the Miscellaneous page
 			}
 		}
-		logger::info("  current text : {}", current.c_str());
-		logger::info("  swapped text : {}", swapped.c_str());
-		return swapped.c_str();
+
+		// the old entry recorded for the objective at this list index, empty if none
+		std::string OldTextAt(std::uint32_t a_index) const
+		{
+			RE::GFxValue entry, entryText;
+			if (!quest || !entries.IsArray() || !entries.GetElement(a_index, &entry) || !entry.GetMember("text", &entryText) || !entryText.IsString()) {
+				return {};
+			}
+			auto* obj = MatchObjective(quest, entryText.GetString());
+			if (!obj) {
+				return {};
+			}
+			std::optional<Rec> rec;
+			{
+				std::scoped_lock l{ g_lock };
+				if (auto it = g_recs.find({ quest->GetFormID(), instance, obj->index }); it != g_recs.end()) {
+					rec = it->second;
+				}
+			}
+			return rec ? TextFor(quest, instance, *rec) : std::string{};  // nothing recorded (e.g. given before install): keep the latest
+		}
+
+		std::string Latest() const
+		{
+			RE::GFxValue d;
+			sel.GetMember("description", &d);
+			return d.IsString() ? d.GetString() : "";
+		}
+
+		double ListY() const
+		{
+			RE::GFxValue y;
+			objList.GetMember("_y", &y);
+			return y.IsNumber() ? y.GetNumber() : 0.0;
+		}
+
+		void ShowText(const std::string& a_text)
+		{
+			std::array<RE::GFxValue, 1> args{ RE::GFxValue(a_text.c_str()) };
+			descText.Invoke("SetText", nullptr, args.data(), args.size());
+		}
+	};
+
+	// Mouse fix: the page lays the objectives out under the description, so a description of another
+	// height moved the list under the cursor and hovered the next objective (a swap every frame).
+	// We wrap the page's own SetDescriptionText: lay out once for the TALLEST text this quest can show,
+	// then show the latest. A highlight only swaps the text, so the list never moves while hovering.
+	void LayOut(const RE::GFxValue& a_page)
+	{
+		PageState s{ a_page };
+		auto      orig = [&] { s.page.Invoke("qhOrigSetDescriptionText"); };
+		const auto latest = s.Latest();
+		std::vector<std::string> olds;
+		for (std::uint32_t i = 0; s.quest && s.entries.IsArray() && i < s.entries.GetArraySize(); ++i) {
+			if (auto t = s.OldTextAt(i); !t.empty() && t != latest && std::ranges::find(olds, t) == olds.end()) {
+				olds.push_back(std::move(t));
+			}
+		}
+		orig();
+		if (olds.empty()) {
+			return;  // vanilla layout
+		}
+		double      bestY = s.ListY();
+		std::string best;
+		for (const auto& t : olds) {
+			s.sel.SetMember("description", RE::GFxValue(t.c_str()));
+			orig();
+			if (const auto y = s.ListY(); y > bestY) {
+				bestY = y;
+				best = t;
+			}
+		}
+		if (!best.empty()) {
+			s.sel.SetMember("description", RE::GFxValue(best.c_str()));
+			orig();
+		}
+		s.sel.SetMember("description", RE::GFxValue(latest.c_str()));
+		s.ShowText(latest);
+		logger::info("layout {}: {} old entries, list y reserved {}", Edid(s.quest), olds.size(), bestY);
 	}
 
 	void OnHighlight(RE::GFxMovie* a_movie, int a_index, int a_keyboardOrMouse)
 	{
-		RE::GFxValue page, titleList, sel;
-		if (!a_movie->GetVariable(&page, kPage) || !page.GetMember("TitleList", &titleList) || !titleList.GetMember("selectedEntry", &sel) || !sel.IsObject()) {
-			logger::info("highlight {}: no page/TitleList/selectedEntry", a_index);
+		RE::GFxValue page;
+		if (!a_movie->GetVariable(&page, kPage)) {
 			return;
 		}
-		RE::GFxValue formV, instV;
-		sel.GetMember("formID", &formV);
-		sel.GetMember("instance", &instV);
-		const auto formID = formV.IsNumber() ? static_cast<RE::FormID>(formV.GetNumber()) : 0;
-		const auto instance = instV.IsNumber() ? static_cast<std::uint32_t>(instV.GetNumber()) : 0;
-		auto*      quest = formID ? RE::TESForm::LookupByID<RE::TESQuest>(formID) : nullptr;
-		logger::info("highlight index={} input={} quest={} [{:08X}] instance={}", a_index, a_keyboardOrMouse, Edid(quest), formID, instance);
-		if (!quest) {
-			return;  // Miscellaneous page (formID 0)
+		PageState s{ page };
+		if (!s.quest) {
+			return;
 		}
-
-		// the latest description, cached by us once per menu open (the swf restores from selectedEntry.description)
-		RE::GFxValue latest;
-		sel.GetMember("qhLatest", &latest);
-		if (latest.IsUndefined()) {
-			sel.GetMember("description", &latest);
-			sel.SetMember("qhLatest", latest);
-			DumpQuest(quest);
-			sel.VisitMembers([](const char* a_name, const RE::GFxValue& a_val) {
-				logger::info("    selectedEntry.{} type={}", a_name, static_cast<int>(a_val.GetType()));
-			});
-		}
-
-		std::string text;
-		if (a_index >= 0) {
-			RE::GFxValue objList, entries, entry, entryText;
-			page.GetMember("ObjectiveList", &objList);
-			objList.GetMember("entryList", &entries);
-			if (entries.IsArray() && entries.GetElement(static_cast<std::uint32_t>(a_index), &entry)) {
-				entry.GetMember("text", &entryText);
-				entry.VisitMembers([](const char* a_name, const RE::GFxValue& a_val) {
-					logger::info("    objectiveEntry.{} type={}", a_name, static_cast<int>(a_val.GetType()));
-				});
-			}
-			const std::string shownText = entryText.IsString() ? entryText.GetString() : "";
-			auto*             obj = MatchObjective(quest, shownText);
-			logger::info("  entry text '{}' -> objective {}", shownText, obj ? static_cast<int>(obj->index) : -1);
-			if (obj) {
-				std::optional<Rec> rec;
-				{
-					std::scoped_lock l{ g_lock };
-					if (auto it = g_recs.find({ formID, instance, obj->index }); it != g_recs.end()) {
-						rec = it->second;
-						logger::info("  recorded: stage {} item {}", rec->stage, rec->item);
-					}
-				}
-				if (!rec) {
-					// fallback guess: the highest logged stage at or below the objective index
-					for (auto* item : RE::PlayerCharacter::GetSingleton()->GetQuestLog()) {
-						if (item && item->owner == quest && item->owningStage) {
-							const auto s = item->owningStage->data.index;
-							if (s <= obj->index && (!rec || s > rec->stage)) {
-								rec = Rec{ s, static_cast<std::int8_t>(item->index) };
-							}
-						}
-					}
-					logger::info("  guessed: stage {} item {}", rec ? rec->stage : 0xFFFF, rec ? rec->item : -2);
-				}
-				if (rec) {
-					text = TextFor(quest, instance, *rec);
-				}
-			}
-		}
-
-		// let the swf lay itself out: show our text through its own SetDescriptionText, then put the cache back
-		if (!text.empty()) {
-			sel.SetMember("description", RE::GFxValue(text.c_str()));
-		}
-		page.Invoke("SetDescriptionText");
-		sel.SetMember("description", latest);
+		const double before = s.ListY();
+		auto         text = a_index >= 0 ? s.OldTextAt(static_cast<std::uint32_t>(a_index)) : std::string{};
+		s.ShowText(text.empty() ? s.Latest() : text);
+		logger::info("highlight {} index={} input={} old={} listY {} -> {}", Edid(s.quest), a_index, a_keyboardOrMouse, !text.empty(), before, s.ListY());
 	}
 
 	class HighlightHandler : public RE::GFxFunctionHandler
@@ -263,29 +263,48 @@ namespace
 		}
 	};
 
+	class LayOutHandler : public RE::GFxFunctionHandler
+	{
+	public:
+		void Call(Params& a_params) override
+		{
+			if (a_params.thisPtr) {
+				LayOut(*a_params.thisPtr);
+			}
+		}
+	};
+
 	void AttachToJournal()
 	{
 		auto  ui = RE::UI::GetSingleton();
 		auto  menu = ui ? ui->GetMenu(RE::JournalMenu::MENU_NAME) : nullptr;
 		auto* movie = menu ? menu->uiMovie.get() : nullptr;
-		if (!movie) {
-			logger::info("journal: no movie");
+		RE::GFxValue page, list, orig;
+		if (!movie || !movie->GetVariable(&page, kPage) || !page.GetMember("ObjectiveList", &list) || !page.GetMember("SetDescriptionText", &orig)) {
+			logger::info("journal: quests page not found");
 			return;
 		}
-		RE::GFxValue list;
-		if (!movie->GetVariable(&list, (std::string(kPage) + ".objectiveList").c_str())) {
-			logger::info("journal: objectiveList not found");
-			return;
-		}
-		static auto* handler = new HighlightHandler();  // lives for the session
+		static auto* highlight = new HighlightHandler();  // live for the session
+		static auto* layOut = new LayOutHandler();
+
 		RE::GFxValue scope, fn;
 		movie->CreateObject(&scope);
-		movie->CreateFunction(&fn, handler);
+		movie->CreateFunction(&fn, highlight);
 		scope.SetMember("onSelect", fn);
 		std::array<RE::GFxValue, 3> args{ RE::GFxValue("selectionChange"), scope, RE::GFxValue("onSelect") };
 		const bool ok = list.Invoke("addEventListener", nullptr, args.data(), args.size());
-		logger::info("journal: listener attached={} questLog size={}", ok,
-			std::ranges::distance(RE::PlayerCharacter::GetSingleton()->GetQuestLog()));
+
+		// shadow the class method on this page instance; the original stays reachable for LayOut
+		RE::GFxValue already;
+		page.GetMember("qhOrigSetDescriptionText", &already);
+		if (already.IsUndefined()) {
+			page.SetMember("qhOrigSetDescriptionText", orig);
+			RE::GFxValue wrapper;
+			movie->CreateFunction(&wrapper, layOut);
+			page.SetMember("SetDescriptionText", wrapper);
+		}
+		page.Invoke("SetDescriptionText");  // the quest shown on open
+		logger::info("journal: listener attached={}, SetDescriptionText wrapped", ok);
 	}
 
 	// Self-test (synthetic keys don't reach the journal lists): if SKSE/QuestHistorySpike.selftest exists,
