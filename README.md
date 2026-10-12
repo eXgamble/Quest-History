@@ -1,6 +1,6 @@
 # Quest History
 
-An SKSE plugin for Skyrim Anniversary Edition (1.6.x and 1.7.x). In the Quest Journal, each quest
+An SKSE plugin for Skyrim Special Edition and Anniversary Edition (1.5.97, 1.6.x and 1.7.x; one DLL for all). In the Quest Journal, each quest
 only shows its latest description; every new stage overwrites the last one. With Quest History,
 **highlighting an objective shows the description the quest had when that objective was given**.
 Move off the objectives and the latest description is back, as in vanilla.
